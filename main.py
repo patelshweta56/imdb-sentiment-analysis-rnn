@@ -1,71 +1,50 @@
-import streamlit as st
-import tensorflow as tf
+# Step 1: Import Libraries and Load the Model
 import numpy as np
+import tensorflow as tf
 from tensorflow.keras.datasets import imdb
 from tensorflow.keras.preprocessing import sequence
 from tensorflow.keras.models import load_model
 
-# Page config
-st.set_page_config(page_title="IMDB Sentiment Analysis", layout="centered")
-
-st.title("IMDB Movie Review Sentiment Analysis")
-
-st.write("Enter a movie review to classify it as Positive or Negative.")
-
-# Load word index
+# Load the IMDB dataset word index
 word_index = imdb.get_word_index()
 reverse_word_index = {value: key for key, value in word_index.items()}
 
-# Load trained model
-model = load_model("simple_rnn_imdb.h5")
+# Load the pre-trained model with ReLU activation
+model = load_model('simple_rnn_imdb.h5')
 
-# Helper function to decode review
+# Step 2: Helper Functions
+# Function to decode reviews
 def decode_review(encoded_review):
     return ' '.join([reverse_word_index.get(i - 3, '?') for i in encoded_review])
 
-# Preprocess user text
+# Function to preprocess user input
 def preprocess_text(text):
     words = text.lower().split()
     encoded_review = [word_index.get(word, 2) + 3 for word in words]
     padded_review = sequence.pad_sequences([encoded_review], maxlen=500)
     return padded_review
 
-# Prediction function
-def predict_sentiment(review):
-    preprocessed_input = preprocess_text(review)
-    prediction = model.predict(preprocessed_input)
-    sentiment = "Positive" if prediction[0][0] > 0.5 else "Negative"
-    return sentiment, prediction[0][0]
 
+import streamlit as st
+## streamlit app
+# Streamlit app
+st.title('IMDB Movie Review Sentiment Analysis')
+st.write('Enter a movie review to classify it as positive or negative.')
 
-# Example reviews
-example_reviews = [
-    "This movie was amazing and the acting was brilliant.",
-    "The film was boring and the story made no sense.",
-    "I loved the cinematography and the emotional storyline.",
-    "The movie was too long and completely predictable."
-]
+# User input
+user_input = st.text_area('Movie Review')
 
-selected_review = st.selectbox("Try an example review", example_reviews)
+if st.button('Classify'):
 
-# Text input
-review = st.text_area("Movie Review", selected_review)
+    preprocessed_input=preprocess_text(user_input)
 
-# Prediction button
-if st.button("Classify"):
+    ## MAke prediction
+    prediction=model.predict(preprocessed_input)
+    sentiment='Positive' if prediction[0][0] > 0.5 else 'Negative'
 
-    sentiment, score = predict_sentiment(review)
-
-    st.subheader("Result")
-
-    if sentiment == "Positive":
-        st.success("Positive Review 😊")
-    else:
-        st.error("Negative Review 😞")
-
-    st.write("Prediction Score:", float(score))
-
-    st.progress(float(score))
-
-
+    # Display the result
+    st.write(f'Sentiment: {sentiment}')
+    st.write(f'Prediction Score: {prediction[0][0]}')
+else:
+    st.write('Please enter a movie review.')
 
