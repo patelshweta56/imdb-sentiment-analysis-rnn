@@ -68,17 +68,4 @@ if st.button("Classify"):
     st.progress(float(score))
 
 
-# About model section
-st.markdown("---")
 
-st.subheader("About the Model")
-
-st.write("""
-This sentiment analysis model is built using a **Simple Recurrent Neural Network (RNN)** trained on the **IMDB movie review dataset**.
-
-**Model Details**
-- Architecture: Simple RNN
-- Dataset: IMDB Movie Reviews
-- Task: Binary Sentiment Classification
-- Framework: TensorFlow / Keras
-""")
